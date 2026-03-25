@@ -6,8 +6,5 @@ export const load: LayoutServerLoad = async (event) => {
 	if (!session) {
 		throw redirect(303, '/login');
 	}
-	if (session.user?.role !== 'admin') {
-		throw redirect(303, '/dashboard');
-	}
 	return { session };
 };

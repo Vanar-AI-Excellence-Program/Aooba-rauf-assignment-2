@@ -5,7 +5,7 @@ import {
 	integer,
 	primaryKey
 } from 'drizzle-orm/pg-core';
-import type { AdapterAccountType } from '@auth/core/adapters';
+import type { AdapterAccountType } from '@auth/sveltekit/adapters';
 import type { InferSelectModel } from 'drizzle-orm';
 
 export const users = pgTable('users', {
@@ -61,5 +61,29 @@ export const verificationTokens = pgTable(
 		primaryKey({ columns: [verificationToken.identifier, verificationToken.token] })
 	]
 );
+
+export const chats = pgTable('chats', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	title: text('title').notNull().default('New Chat'),
+	createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow()
+});
+
+export const chatMessages = pgTable('chat_messages', {
+	id: text('id')
+		.primaryKey()
+		.$defaultFn(() => crypto.randomUUID()),
+	chatId: text('chat_id')
+		.notNull()
+		.references(() => chats.id, { onDelete: 'cascade' }),
+	parentId: text('parent_id'),
+	role: text('role').notNull(),
+	content: text('content').notNull(),
+	createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow()
+});
 
 export type User = InferSelectModel<typeof users>;
